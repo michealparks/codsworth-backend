@@ -5,20 +5,26 @@ const getFeatPic = require('./wiki-featured-pic')
 
 const PORT = 3000
 
-const JsonHeader = {
+const jsonHeader = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*'
 }
 
+const htmlHeader = {
+  'Content-Type': 'text/html'
+}
+
 const route = {
   '/featured-pic': (request, response) => {
-    response.writeHead(200, JsonHeader)
     getFeatPic()
-      .then(data => response.end(data))
+      .then(data => onSuccess(data, response))
       .catch(err => onError(err, response))
   },
   'default': (request, response) => {
     console.log(`Unhandled request: ${request.url}`)
+    response.writeHead(404, htmlHeader)
+    response.write('<h1>404</h1>')
+    response.end()
   }
 }
 
@@ -29,6 +35,11 @@ http
   .listen(PORT, () => console.log(`Server listening on port ${PORT}`))
 
 function onError (err, response) {
-  response.writeHead(500, JsonHeader)
+  response.writeHead(500, jsonHeader)
   response.end(err)
+}
+
+function onSuccess (data, response) {
+  response.writeHead(200, jsonHeader)
+  response.end(data)
 }
